@@ -7,12 +7,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F8FAFC">
 <title>专注备考助手 · 循证时间管理</title>
-<!-- QR Code Library for offline/online generation -->
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<!-- Supabase JS SDK v2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   /* ==========================================================================
-     Design System: Minimalism & Swiss Style (ui-ux-pro-max-skill)
-     Clean, spacious, high contrast, warm slate palette, zero punk/dark clutter
+     Design System: Minimalism & Swiss Style
+     Clean, spacious, high contrast, warm slate palette
      ========================================================================== */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   
@@ -90,7 +90,16 @@
     flex-direction: column;
     align-items: center;
     margin-bottom: 20px;
-    gap: 16px;
+    gap: 12px;
+  }
+
+  .nav-bar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .nav-tabs {
@@ -101,14 +110,12 @@
     border: 1px solid var(--border-light);
     box-shadow: var(--shadow-sm);
     gap: 4px;
-    flex-wrap: wrap;
-    justify-content: center;
   }
 
   .nav-btn {
     border: none;
     background: transparent;
-    padding: 8px 18px;
+    padding: 8px 20px;
     border-radius: var(--radius-full);
     font-size: 0.9rem;
     font-weight: 600;
@@ -128,6 +135,51 @@
     background: var(--primary);
     color: #FFFFFF;
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
+  }
+
+  /* Cloud Sync Status Indicator */
+  .cloud-sync-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .cloud-sync-status:hover {
+    border-color: var(--primary-border);
+    background: var(--primary-subtle);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10B981;
+    display: inline-block;
+  }
+
+  .status-dot.syncing {
+    background: #F59E0B;
+    animation: pulse 1s infinite;
+  }
+
+  .status-dot.offline {
+    background: #EF4444;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
   }
 
   /* ---- Card Styles ---- */
@@ -641,182 +693,7 @@
   }
 
   /* ==========================================================================
-     Page 2: Pomodoro View
-     ========================================================================== */
-  .pomodoro-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .pomo-timer-display {
-    font-size: 5rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -2px;
-    margin: 16px 0 8px;
-    line-height: 1;
-  }
-
-  .pomo-stage-badge {
-    font-size: 0.88rem;
-    font-weight: 700;
-    padding: 4px 16px;
-    border-radius: var(--radius-full);
-    background: var(--primary-subtle);
-    color: var(--primary);
-    margin-bottom: 24px;
-    display: inline-block;
-  }
-
-  .pomo-rounds-indicator {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-
-  .round-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--border-light);
-    border: 2px solid var(--border-subtle);
-    transition: all 0.2s;
-  }
-
-  .round-dot.done {
-    background: var(--primary);
-    border-color: var(--primary);
-  }
-
-  .round-dot.active {
-    background: var(--primary);
-    box-shadow: 0 0 0 4px var(--primary-subtle);
-  }
-
-  .pomo-controls {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 28px;
-  }
-
-  .btn-primary-large {
-    background: var(--primary);
-    color: #FFFFFF;
-    border: none;
-    border-radius: var(--radius-full);
-    padding: 12px 38px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .btn-primary-large:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-  }
-
-  .btn-secondary-large {
-    background: var(--bg-surface);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-full);
-    padding: 12px 24px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-secondary-large:hover {
-    background: var(--bg-subtle);
-    color: var(--text-primary);
-  }
-
-  .pomo-sync-tip {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .pomo-settings-card {
-    background: var(--bg-subtle);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    padding: 20px 24px;
-    width: 100%;
-    max-width: 540px;
-    margin-bottom: 20px;
-    text-align: left;
-  }
-
-  .pomo-settings-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-
-  .pomo-settings-title {
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .pomo-settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .pomo-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .pomo-field label {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .pomo-field input {
-    padding: 10px 14px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-light);
-    background: #FFFFFF;
-    font-size: 0.95rem;
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .pomo-field input:focus {
-    border-color: var(--primary);
-  }
-
-  .pomo-hint-text {
-    font-size: 0.76rem;
-    color: var(--primary);
-    font-weight: 600;
-    margin-top: 2px;
-  }
-
-  /* ==========================================================================
-     Page 3: Task Repository View
+     Page 2: Task Repository View
      ========================================================================== */
   .form-row-grid {
     display: grid;
@@ -1008,67 +885,6 @@
   }
 
   /* ==========================================================================
-     Page 4: Sync Center (多端数据互通)
-     ========================================================================== */
-  .sync-card {
-    background: #FFFFFF;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 20px;
-  }
-
-  .sync-method-title {
-    font-size: 1.02rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .sync-method-desc {
-    font-size: 0.84rem;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-    line-height: 1.45;
-  }
-
-  .qr-box-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background: var(--bg-subtle);
-    border-radius: var(--radius-md);
-    margin-bottom: 16px;
-  }
-
-  #sync-qrcode {
-    background: #FFFFFF;
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 12px;
-  }
-
-  .sync-actions-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
-
-  .webdav-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  /* ==========================================================================
      Modal Component
      ========================================================================== */
   .modal-overlay {
@@ -1187,40 +1003,40 @@
 
   /* Responsive */
   @media (max-width: 768px) {
+    .nav-bar-row { justify-content: center; }
     .top-grid { grid-template-columns: 1fr; }
     .today-grid { grid-template-columns: 1fr; }
     .rules-accordion { grid-template-columns: 1fr; }
     .form-row-grid { grid-template-columns: 1fr; }
-    .pomo-settings-grid { grid-template-columns: 1fr; }
     .repo-filter-bar { flex-direction: column; align-items: stretch; }
     .repo-search-input { width: 100%; }
-    .webdav-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Top Segmented Navigation -->
+  <!-- Top Segmented Navigation & Sync Status -->
   <header class="top-header">
-    <nav class="nav-tabs">
-      <button class="nav-btn active" data-tab="home">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        今日看板
-      </button>
-      <button class="nav-btn" data-tab="pomodoro">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        番茄时钟
-      </button>
-      <button class="nav-btn" data-tab="tasks">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-        任务库
-      </button>
-      <button class="nav-btn" data-tab="sync">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-        多端同步
-      </button>
-    </nav>
+    <div class="nav-bar-row">
+      <nav class="nav-tabs">
+        <button class="nav-btn active" data-tab="home">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          今日看板
+        </button>
+        <button class="nav-btn" data-tab="tasks">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          任务库
+        </button>
+      </nav>
+
+      <!-- Clickable Sync Status Badge -->
+      <div class="cloud-sync-status" id="btn-sync-settings" title="点击查看或修改设备同步码">
+        <span class="status-dot" id="sync-status-dot"></span>
+        <span id="sync-status-text">云端已连接</span>
+        <span style="font-size:0.75rem; color:var(--text-light); border-left:1px solid var(--border-light); padding-left:6px;" id="sync-code-display">同步码: study_2026</span>
+      </div>
+    </div>
   </header>
 
   <!-- ========================================================================
@@ -1318,12 +1134,8 @@
           <span class="tier-pill">L3 · 挑战任务</span>
           <span class="tier-desc">高认知负荷</span>
         </div>
-        <div class="tier-body" id="slot-body-L3">
-          <!-- Populated by JS -->
-        </div>
-        <div class="tier-footer" id="slot-footer-L3">
-          <!-- Populated by JS -->
-        </div>
+        <div class="tier-body" id="slot-body-L3"></div>
+        <div class="tier-footer" id="slot-footer-L3"></div>
       </div>
 
       <!-- L2 Slot Card -->
@@ -1332,12 +1144,8 @@
           <span class="tier-pill">L2 · 进阶任务</span>
           <span class="tier-desc">中认知负荷</span>
         </div>
-        <div class="tier-body" id="slot-body-L2">
-          <!-- Populated by JS -->
-        </div>
-        <div class="tier-footer" id="slot-footer-L2">
-          <!-- Populated by JS -->
-        </div>
+        <div class="tier-body" id="slot-body-L2"></div>
+        <div class="tier-footer" id="slot-footer-L2"></div>
       </div>
 
       <!-- L1 Slot Card -->
@@ -1346,78 +1154,14 @@
           <span class="tier-pill">L1 · 基础任务</span>
           <span class="tier-desc">低认知负荷</span>
         </div>
-        <div class="tier-body" id="slot-body-L1">
-          <!-- Populated by JS -->
-        </div>
-        <div class="tier-footer" id="slot-footer-L1">
-          <!-- Populated by JS -->
-        </div>
+        <div class="tier-body" id="slot-body-L1"></div>
+        <div class="tier-footer" id="slot-footer-L1"></div>
       </div>
     </div>
   </main>
 
   <!-- ========================================================================
-       TAB 2: POMODORO (番茄时钟 & 点击启动 Windows 时钟)
-       ======================================================================== -->
-  <main id="view-pomodoro" style="display: none;">
-    <div class="card pomodoro-container">
-      <span class="pomo-stage-badge" id="pomo-stage-badge">🔥 专注时段</span>
-      <div class="pomo-timer-display" id="pomo-timer-display">25:00</div>
-
-      <div class="pomo-rounds-indicator" id="pomo-rounds">
-        <div class="round-dot active" title="第1轮"></div>
-        <div class="round-dot" title="第2轮"></div>
-        <div class="round-dot" title="第3轮"></div>
-        <div class="round-dot" title="第4轮"></div>
-      </div>
-
-      <div class="pomo-controls">
-        <button class="btn-primary-large" id="pomo-btn-toggle">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          <span id="pomo-btn-text">开始专注</span>
-        </button>
-        <button class="btn-secondary-large" id="pomo-btn-reset">重置</button>
-      </div>
-
-      <div class="pomo-sync-tip">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
-        点击【开始专注】将自动唤醒 Windows 系统时钟 APP（手机上可使用自带计时）
-      </div>
-
-      <!-- Settings: Focus Duration + Short Rest + Restore Default -->
-      <div class="pomo-settings-card">
-        <div class="pomo-settings-top">
-          <div class="pomo-settings-title">⚙️ 时长参数设置</div>
-          <button class="btn-icon-subtle" id="pomo-btn-restore-default" title="恢复默认：25分钟专注 / 5分钟短休">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-            恢复默认
-          </button>
-        </div>
-
-        <div class="pomo-settings-grid">
-          <div class="pomo-field">
-            <label>
-              <span>单轮专注时长 (分钟)</span>
-              <span style="font-weight:normal; font-size:0.75rem; color:var(--text-light);">15~90 min</span>
-            </label>
-            <input type="number" id="pomo-input-focus" value="25" min="15" max="90">
-            <div class="pomo-hint-text" id="pomo-focus-hint">建议 25~45 分钟</div>
-          </div>
-          <div class="pomo-field">
-            <label>
-              <span>常规短休时长 (分钟)</span>
-              <span id="pomo-rest-recommended" style="color:var(--primary); font-weight:600; font-size:0.78rem;">建议 5 分钟</span>
-            </label>
-            <input type="number" id="pomo-input-rest" value="5" min="3" max="30">
-            <div class="pomo-hint-text" id="pomo-rest-hint">建议短休 5 分钟</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- ========================================================================
-       TAB 3: TASK REPOSITORY
+       TAB 2: TASK REPOSITORY (任务库)
        ======================================================================== -->
   <main id="view-tasks" style="display: none;">
     <!-- Add Task Card -->
@@ -1468,92 +1212,7 @@
       </div>
 
       <!-- Compact Scrollable List -->
-      <div class="repo-list-scroll" id="repo-filtered-list">
-        <!-- Injected by JS -->
-      </div>
-    </div>
-  </main>
-
-  <!-- ========================================================================
-       TAB 4: MULTI-DEVICE SYNC (多端数据互通中心)
-       ======================================================================== -->
-  <main id="view-sync" style="display: none;">
-    <!-- Method 1: QR Code Instant Sync -->
-    <div class="sync-card">
-      <div class="sync-method-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-        方式一：手机扫码即时互通（秒级同步 · 零门槛）
-      </div>
-      <div class="sync-method-desc">
-        电脑点击生成最新同步二维码，手机使用<strong>微信、浏览器或相机</strong>扫一扫，手机端将立即一键无缝载入电脑上的全部目标、题库与今日任务进度！
-      </div>
-
-      <div class="qr-box-wrap">
-        <div id="sync-qrcode"></div>
-        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:8px;" id="qr-status-text">
-          二维码包含当前设备的完整备考数据包
-        </div>
-        <div class="sync-actions-row">
-          <button class="btn-icon-subtle" id="btn-refresh-qr">🔄 刷新生成最新二维码</button>
-          <button class="btn-icon-subtle" id="btn-copy-sync-link">📋 复制同步链接</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Method 2: WebDAV / Nutstore Cloud Auto-Sync -->
-    <div class="sync-card">
-      <div class="sync-method-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>
-        方式二：坚果云 / WebDAV 自动双向云同步（终身免费 · 自动互通）
-      </div>
-      <div class="sync-method-desc">
-        配置坚果云 WebDAV 后，电脑与手机每次新增任务或勾选完成，都可以全自动双向同步，无需重复扫码（与 Obsidian、Joplin 原理一致）。
-      </div>
-
-      <div class="webdav-grid">
-        <div class="form-field">
-          <label>WebDAV 服务器地址</label>
-          <input type="text" id="webdav-url" placeholder="https://dav.jianguoyun.com/dav/">
-        </div>
-        <div class="form-field">
-          <label>保存文件路径</label>
-          <input type="text" id="webdav-path" value="/cet6_sync.json">
-        </div>
-        <div class="form-field">
-          <label>账号 / 邮箱</label>
-          <input type="text" id="webdav-user" placeholder="你的坚果云账号邮箱">
-        </div>
-        <div class="form-field">
-          <label>应用专用密码</label>
-          <input type="password" id="webdav-pass" placeholder="坚果云后台生成的应用密码">
-        </div>
-      </div>
-
-      <div class="sync-actions-row">
-        <button class="btn-add" id="btn-webdav-upload" style="height:36px; padding:6px 16px;">☁️ 上传到云端</button>
-        <button class="btn-icon-subtle" id="btn-webdav-download">📥 从云端拉取</button>
-        <button class="btn-icon-subtle" id="btn-webdav-save-cfg">💾 保存配置</button>
-      </div>
-    </div>
-
-    <!-- Method 3: Backup File & Data String -->
-    <div class="sync-card">
-      <div class="sync-method-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        方式三：数据包手动导入导出
-      </div>
-      <div class="sync-method-desc">
-        支持直接下载 `.json` 离线备份文件，或复制纯文本数据代码在不同设备间手动粘贴还原。
-      </div>
-      <div class="sync-actions-row">
-        <button class="btn-icon-subtle" id="btn-export-file">💾 下载 JSON 备份文件</button>
-        <label class="btn-icon-subtle" style="cursor:pointer;">
-          📥 导入 JSON 文件
-          <input type="file" id="inp-import-file" accept=".json" style="display:none;">
-        </label>
-        <button class="btn-icon-subtle" id="btn-copy-raw-json">📋 复制数据字符串</button>
-        <button class="btn-icon-subtle" id="btn-paste-raw-json">📝 粘贴数据字符串导入</button>
-      </div>
+      <div class="repo-list-scroll" id="repo-filtered-list"></div>
     </div>
   </main>
 </div>
@@ -1600,9 +1259,7 @@
     <div style="font-size: 0.85rem; color: var(--text-muted);">
       从题库中挑选一项作为今日任务：
     </div>
-    <div class="modal-task-list" id="modal-task-list">
-      <!-- Options injected by JS -->
-    </div>
+    <div class="modal-task-list" id="modal-task-list"></div>
     <div class="modal-actions">
       <button class="btn-icon-subtle" id="btn-clear-slot" style="color: #EF4444;">清空此项</button>
       <button class="btn-icon-subtle" data-close="modal-select-task">取消</button>
@@ -1611,20 +1268,30 @@
 </div>
 
 <!-- ========================================================================
-     MODAL: INCOMING SYNC PROMPT (扫码或链接打开时触发)
+     MODAL: SYNC SETTINGS & MULTI-DEVICE PAIRING
      ======================================================================== -->
-<div class="modal-overlay" id="modal-incoming-sync">
+<div class="modal-overlay" id="modal-sync">
   <div class="modal-card">
     <div class="modal-header">
-      <div class="modal-title">📱 检测到跨端同步数据</div>
-      <button class="modal-close" data-close="modal-incoming-sync">✕</button>
+      <div class="modal-title">☁️ 多端云同步配对</div>
+      <button class="modal-close" data-close="modal-sync">✕</button>
     </div>
-    <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px;" id="incoming-sync-desc">
-      检测到来自其他设备的同步数据包，是否立即载入并覆盖当前本地进度？
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom: 18px;">
+      <div style="font-size:0.86rem; color:var(--text-secondary); line-height:1.5;">
+        在手机、平板和电脑上使用<strong>同一个同步码</strong>，所有备考进度、任务库与打卡状态将实现毫秒级自动互通。
+      </div>
+      <div class="form-field">
+        <label>当前设备专属同步码 (Key)</label>
+        <input type="text" id="sync-input-key" placeholder="如：my_study_2026" maxlength="40">
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-icon-subtle" id="btn-copy-share-url" style="flex:1;">📋 复制手机快捷打开链接</button>
+        <button class="btn-icon-subtle" id="btn-force-pull">📥 立即拉取云端</button>
+      </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-icon-subtle" data-close="modal-incoming-sync">忽略</button>
-      <button class="btn-add" id="btn-confirm-incoming-sync">确定载入并同步</button>
+      <button class="btn-icon-subtle" data-close="modal-sync">关闭</button>
+      <button class="btn-add" id="btn-save-sync-key">应用并同步</button>
     </div>
   </div>
 </div>
@@ -1632,15 +1299,19 @@
 <!-- Toast notification -->
 <div class="toast" id="toast"></div>
 
-<!-- Invisible link to trigger ms-clock protocol -->
-<a id="clock-trigger-link" href="ms-clock:" style="display:none;"></a>
-
 <!-- ========================================================================
-     JavaScript Logic
+     JavaScript Logic: Supabase Realtime + Local State
      ======================================================================== -->
 <script>
 (function() {
   'use strict';
+
+  /* --- Supabase Credentials --- */
+  const SUPABASE_URL = 'https://hlkuwdskscddifikybpz.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_EsLSqjNKDjt_36kkEKGhXQ_GXG5oVWZ';
+
+  // Initialize Supabase Client
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   /* --- Storage Keys --- */
   const KEYS = {
@@ -1648,9 +1319,23 @@
     TASKS: 'cet6_clean_tasks_v3',
     SLOTS: 'cet6_clean_slots_v3',
     DONE: 'cet6_clean_done_v3',
-    POMO: 'cet6_clean_pomo_v3',
-    WEBDAV: 'cet6_clean_webdav_v3'
+    SYNC_KEY: 'cet6_supabase_sync_key'
   };
+
+  /* --- Multi-Device Sync Key (Support URL param ?key=...) --- */
+  function getInitialSyncKey() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const keyFromUrl = urlParams.get('key');
+    if (keyFromUrl) {
+      localStorage.setItem(KEYS.SYNC_KEY, keyFromUrl.trim());
+      return keyFromUrl.trim();
+    }
+    return localStorage.getItem(KEYS.SYNC_KEY) || 'study_2026';
+  }
+
+  let syncKey = getInitialSyncKey();
+  let clientSessionId = Math.random().toString(36).slice(2, 9); // identify self to avoid echo
+  let realtimeChannel = null;
 
   /* --- Default Data --- */
   const DEFAULT_GOAL = {
@@ -1679,13 +1364,10 @@
   let tasks = loadTasks();
   let slots = loadSlots(); // { L3: id | null, L2: id | null, L1: id | null }
   let doneState = loadDoneState(); // { L3: bool, L2: bool, L1: bool, date: 'YYYY-MM-DD' }
-  let pomoSettings = loadPomoSettings();
-  let webdavConfig = loadWebdavConfig();
 
   let activeSelectTier = null;
   let repoFilter = 'all';
   let repoSearchQuery = '';
-  let pendingSyncData = null;
 
   /* --- Helpers --- */
   function $(selector) { return document.querySelector(selector); }
@@ -1740,23 +1422,135 @@
   }
   function saveDoneState(d) { localStorage.setItem(KEYS.DONE, JSON.stringify(d)); }
 
-  function loadPomoSettings() {
-    try {
-      const p = JSON.parse(localStorage.getItem(KEYS.POMO));
-      if (p && p.focus && p.rest) return p;
-    } catch(e){}
-    return { focus: 25, rest: 5 };
+  /* ==========================================================================
+     Supabase Cloud Sync Engine (Push, Pull, Realtime Broadcast)
+     ========================================================================== */
+  function exportPayload() {
+    return {
+      senderId: clientSessionId,
+      goal,
+      tasks,
+      slots,
+      doneState,
+      timestamp: new Date().toISOString()
+    };
   }
-  function savePomoSettings(p) { localStorage.setItem(KEYS.POMO, JSON.stringify(p)); }
 
-  function loadWebdavConfig() {
-    try {
-      const w = JSON.parse(localStorage.getItem(KEYS.WEBDAV));
-      if (w) return w;
-    } catch(e){}
-    return { url: 'https://dav.jianguoyun.com/dav/', path: '/cet6_sync.json', user: '', pass: '' };
+  function applyPayload(payload) {
+    if (!payload || !payload.goal || !Array.isArray(payload.tasks)) return;
+
+    goal = payload.goal;
+    tasks = payload.tasks;
+    slots = payload.slots || { L3: null, L2: null, L1: null };
+    doneState = payload.doneState || { L3: false, L2: false, L1: false, date: todayKey() };
+
+    saveGoal(goal);
+    saveTasks(tasks);
+    saveSlots(slots);
+    saveDoneState(doneState);
+
+    $('#goal-name-text').textContent = goal.title;
+    updateClockAndCountdown();
+    renderSlots();
+    renderRepo();
   }
-  function saveWebdavConfig(w) { localStorage.setItem(KEYS.WEBDAV, JSON.stringify(w)); }
+
+  let syncDebounceTimer = null;
+  async function pushToCloud() {
+    const dot = $('#sync-status-dot');
+    const text = $('#sync-status-text');
+    dot.className = 'status-dot syncing';
+    text.textContent = '同步中...';
+
+    clearTimeout(syncDebounceTimer);
+    syncDebounceTimer = setTimeout(async () => {
+      try {
+        const payload = exportPayload();
+        const { error } = await sb
+          .from('user_data')
+          .upsert({
+            user_key: syncKey,
+            payload: payload,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_key' });
+
+        if (error) throw error;
+        dot.className = 'status-dot';
+        text.textContent = '云端已同步';
+      } catch (err) {
+        console.error('Supabase Sync Error:', err);
+        dot.className = 'status-dot offline';
+        text.textContent = '同步未生效';
+      }
+    }, 350);
+  }
+
+  async function pullFromCloud(silent = false) {
+    try {
+      const dot = $('#sync-status-dot');
+      const text = $('#sync-status-text');
+      dot.className = 'status-dot syncing';
+      text.textContent = '正在获取...';
+
+      const { data, error } = await sb
+        .from('user_data')
+        .select('payload')
+        .eq('user_key', syncKey)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data && data.payload) {
+        applyPayload(data.payload);
+        dot.className = 'status-dot';
+        text.textContent = '云端已同步';
+        if (!silent) showToast('🎉 已成功拉取最新云端数据');
+      } else {
+        // First time initialization for this key
+        await pushToCloud();
+        dot.className = 'status-dot';
+        text.textContent = '已初始化云端';
+      }
+    } catch (err) {
+      console.warn('Pull failed:', err);
+      $('#sync-status-dot').className = 'status-dot offline';
+      $('#sync-status-text').textContent = '未连接';
+      if (!silent) showToast('⚠️ 读取云端失败，请检查表与网络');
+    }
+  }
+
+  function initRealtime() {
+    if (realtimeChannel) {
+      sb.removeChannel(realtimeChannel);
+    }
+
+    realtimeChannel = sb
+      .channel('public:user_data:' + syncKey)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_data',
+          filter: `user_key=eq.${syncKey}`
+        },
+        (change) => {
+          if (change.new && change.new.payload) {
+            // Ignore messages from this device session to prevent echo
+            if (change.new.payload.senderId === clientSessionId) return;
+
+            applyPayload(change.new.payload);
+            showToast('🔄 手机/其他设备刚刚更新了进度');
+          }
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          $('#sync-status-dot').className = 'status-dot';
+          $('#sync-status-text').textContent = '实时已连接';
+        }
+      });
+  }
 
   /* ==========================================================================
      1. Live Clock, Goal Countdown & Overall Progress
@@ -1914,6 +1708,7 @@
           saveDoneState(doneState);
           renderSlots();
           updateTodayProgress();
+          pushToCloud();
         };
       }
     });
@@ -1973,6 +1768,7 @@
           closeModal('modal-select-task');
           renderSlots();
           showToast(`已选定 ${tier} 今日任务`);
+          pushToCloud();
         };
         listCont.appendChild(item);
       });
@@ -1990,6 +1786,7 @@
       closeModal('modal-select-task');
       renderSlots();
       showToast('已清空当前槽位任务');
+      pushToCloud();
     }
   };
 
@@ -2021,6 +1818,7 @@
     closeModal('modal-goal');
     updateClockAndCountdown();
     showToast('总目标已更新');
+    pushToCloud();
   };
 
   /* ==========================================================================
@@ -2075,6 +1873,7 @@
         saveSlots(slots);
         renderSlots();
         showToast(`已设为今日 ${t.diff} 任务`);
+        pushToCloud();
       };
 
       item.querySelector('.btn-del').onclick = () => {
@@ -2085,6 +1884,7 @@
         renderRepo();
         renderSlots();
         showToast('已从题库删除任务');
+        pushToCloud();
       };
 
       listCont.appendChild(item);
@@ -2125,462 +1925,52 @@
     $('#inp-new-name').value = '';
     renderRepo();
     showToast('✅ 任务已添加到题库');
+    pushToCloud();
   };
 
   /* ==========================================================================
-     6. Pomodoro Logic
+     6. Sync Settings Modal & Interactions
      ======================================================================== */
-  let pomoState = {
-    mode: 'focus',
-    round: 1,
-    remainingSeconds: pomoSettings.focus * 60,
-    isRunning: false,
-    timerId: null
+  function updateSyncBadge() {
+    $('#sync-code-display').textContent = `同步码: ${syncKey}`;
+    $('#sync-input-key').value = syncKey;
+  }
+
+  $('#btn-sync-settings').onclick = () => {
+    updateSyncBadge();
+    openModal('modal-sync');
   };
 
-  function calculateRecommendedRest(focusMin) {
-    if (focusMin <= 25) return 5;
-    if (focusMin <= 40) return 8;
-    return 10;
-  }
-
-  function updateRestHint() {
-    let focusMin = parseInt($('#pomo-input-focus').value, 10);
-    if (!focusMin || focusMin < 15) focusMin = 15;
-    const rec = calculateRecommendedRest(focusMin);
-    $('#pomo-rest-recommended').textContent = `建议 ${rec} 分钟`;
-    $('#pomo-rest-hint').textContent = `建议短休 ${rec} 分钟（科学配比专注负荷）`;
-  }
-
-  function renderPomoDisplay() {
-    const m = Math.floor(pomoState.remainingSeconds / 60);
-    const s = pomoState.remainingSeconds % 60;
-    $('#pomo-timer-display').textContent = `${pad2(m)}:${pad2(s)}`;
-
-    $('#pomo-stage-badge').textContent = pomoState.mode === 'focus' ? '🔥 专注时段' : '☕ 常规短休';
-
-    const dots = $$('#pomo-rounds .round-dot');
-    dots.forEach((dot, idx) => {
-      dot.classList.remove('done', 'active');
-      if (idx + 1 < pomoState.round) {
-        dot.classList.add('done');
-      } else if (idx + 1 === pomoState.round) {
-        dot.classList.add('active');
-      }
-    });
-
-    $('#pomo-btn-text').textContent = pomoState.isRunning ? '暂停' : '开始专注';
-  }
-
-  function playChime() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.3);
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.6);
-    } catch(e){}
-  }
-
-  function tickPomo() {
-    if (pomoState.remainingSeconds > 0) {
-      pomoState.remainingSeconds--;
-      renderPomoDisplay();
-    } else {
-      playChime();
-      const focusMin = parseInt($('#pomo-input-focus').value, 10) || 25;
-      const restMin = parseInt($('#pomo-input-rest').value, 10) || 5;
-
-      if (pomoState.mode === 'focus') {
-        pomoState.mode = 'shortBreak';
-        pomoState.remainingSeconds = restMin * 60;
-        showToast('☕ 专注完成，请开始短休！');
-      } else {
-        pomoState.mode = 'focus';
-        pomoState.round = (pomoState.round % 4) + 1;
-        pomoState.remainingSeconds = focusMin * 60;
-        showToast('🎯 短休结束，开始新一轮专注！');
-      }
-
-      renderPomoDisplay();
-    }
-  }
-
-  function triggerWindowsClock() {
-    try {
-      const link = $('#clock-trigger-link');
-      if (link) link.click();
-      else window.location.href = 'ms-clock:';
-    } catch(e){
-      window.location.href = 'ms-clock:';
-    }
-  }
-
-  $('#pomo-btn-toggle').onclick = () => {
-    if (pomoState.isRunning) {
-      clearInterval(pomoState.timerId);
-      pomoState.isRunning = false;
-      renderPomoDisplay();
-    } else {
-      let focusMin = parseInt($('#pomo-input-focus').value, 10);
-      if (!focusMin || focusMin < 15) {
-        showToast('⚠️ 专注时长不能少于15分钟，已调整为15分钟');
-        focusMin = 15;
-        $('#pomo-input-focus').value = 15;
-        pomoSettings.focus = 15;
-        savePomoSettings(pomoSettings);
-        pomoState.remainingSeconds = 15 * 60;
-      }
-
-      let restMin = parseInt($('#pomo-input-rest').value, 10);
-      if (!restMin || restMin < 3) {
-        restMin = 3;
-        $('#pomo-input-rest').value = 3;
-        pomoSettings.rest = 3;
-        savePomoSettings(pomoSettings);
-      }
-
-      pomoState.isRunning = true;
-      pomoState.timerId = setInterval(tickPomo, 1000);
-      renderPomoDisplay();
-
-      triggerWindowsClock();
-      showToast(`🚀 开启 ${focusMin} 分钟专注倒计时！`);
-    }
-  };
-
-  $('#pomo-btn-reset').onclick = () => {
-    clearInterval(pomoState.timerId);
-    pomoState.isRunning = false;
-    pomoState.mode = 'focus';
-    pomoState.round = 1;
-    let focusMin = parseInt($('#pomo-input-focus').value, 10) || 25;
-    if (focusMin < 15) focusMin = 15;
-    pomoState.remainingSeconds = focusMin * 60;
-    renderPomoDisplay();
-    showToast('番茄时钟已重置');
-  };
-
-  $('#pomo-btn-restore-default').onclick = () => {
-    pomoSettings = { focus: 25, rest: 5 };
-    savePomoSettings(pomoSettings);
-    $('#pomo-input-focus').value = 25;
-    $('#pomo-input-rest').value = 5;
-
-    clearInterval(pomoState.timerId);
-    pomoState.isRunning = false;
-    pomoState.mode = 'focus';
-    pomoState.round = 1;
-    pomoState.remainingSeconds = 25 * 60;
-
-    updateRestHint();
-    renderPomoDisplay();
-    showToast('已恢复默认设定（25分钟专注 / 5分钟短休）');
-  };
-
-  $('#pomo-input-focus').onchange = () => {
-    let val = parseInt($('#pomo-input-focus').value, 10);
-    if (!val || val < 15) {
-      showToast('⚠️ 专注时长建议至少15分钟，已调整为15分钟');
-      val = 15;
-      $('#pomo-input-focus').value = 15;
-    } else if (val > 120) {
-      val = 120;
-      $('#pomo-input-focus').value = 120;
-    }
-    pomoSettings.focus = val;
-    savePomoSettings(pomoSettings);
-    updateRestHint();
-
-    if (!pomoState.isRunning && pomoState.mode === 'focus') {
-      pomoState.remainingSeconds = val * 60;
-      renderPomoDisplay();
-    }
-  };
-
-  $('#pomo-input-rest').onchange = () => {
-    let val = parseInt($('#pomo-input-rest').value, 10);
-    if (!val || val < 3) {
-      val = 3;
-      $('#pomo-input-rest').value = 3;
-    } else if (val > 30) {
-      val = 30;
-      $('#pomo-input-rest').value = 30;
-    }
-    pomoSettings.rest = val;
-    savePomoSettings(pomoSettings);
-  };
-
-  /* ==========================================================================
-     7. Multi-Device Sync Engine (QR Code, WebDAV, JSON Backup)
-     ======================================================================== */
-  function exportFullDataPackage() {
-    return {
-      version: '3.0',
-      timestamp: new Date().toISOString(),
-      goal,
-      tasks,
-      slots,
-      doneState,
-      pomoSettings
-    };
-  }
-
-  function importFullDataPackage(data) {
-    if (!data || !data.goal || !Array.isArray(data.tasks)) {
-      showToast('⚠️ 数据格式不匹配，无法导入');
-      return false;
-    }
-    goal = data.goal;
-    tasks = data.tasks;
-    slots = data.slots || { L3: null, L2: null, L1: null };
-    doneState = data.doneState || { L3: false, L2: false, L1: false, date: todayKey() };
-    if (data.pomoSettings) pomoSettings = data.pomoSettings;
-
-    saveGoal(goal);
-    saveTasks(tasks);
-    saveSlots(slots);
-    saveDoneState(doneState);
-    savePomoSettings(pomoSettings);
-
-    $('#goal-name-text').textContent = goal.title;
-    $('#pomo-input-focus').value = pomoSettings.focus;
-    $('#pomo-input-rest').value = pomoSettings.rest;
-
-    updateClockAndCountdown();
-    renderSlots();
-    renderRepo();
-    renderPomoDisplay();
-    generateQrCode();
-    return true;
-  }
-
-  function generateSyncUrl() {
-    const pkg = exportFullDataPackage();
-    const jsonStr = JSON.stringify(pkg);
-    // Base64 encode UTF-8
-    const b64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
-    const baseUrl = window.location.href.split('#')[0];
-    return baseUrl + '#sync=' + b64;
-  }
-
-  let qrInstance = null;
-  function generateQrCode() {
-    const container = $('#sync-qrcode');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const syncUrl = generateSyncUrl();
-    if (window.QRCode) {
-      qrInstance = new QRCode(container, {
-        text: syncUrl,
-        width: 190,
-        height: 190,
-        colorDark: '#0F172A',
-        colorLight: '#FFFFFF',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    } else {
-      container.innerHTML = `<div style="padding:20px; font-size:0.82rem; color:var(--text-muted); text-align:center;">正在加载二维码引擎...</div>`;
-    }
-  }
-
-  $('#btn-refresh-qr').onclick = () => {
-    generateQrCode();
-    showToast('✅ 二维码已刷新为当前最新进度');
-  };
-
-  $('#btn-copy-sync-link').onclick = () => {
-    const syncUrl = generateSyncUrl();
-    navigator.clipboard.writeText(syncUrl).then(() => {
-      showToast('📋 同步链接已复制到剪贴板，微信发送即可打开！');
-    }).catch(() => {
-      prompt('请复制下方同步链接：', syncUrl);
-    });
-  };
-
-  // Check incoming sync from URL hash
-  function checkIncomingSync() {
-    if (window.location.hash.startsWith('#sync=')) {
-      try {
-        const b64 = window.location.hash.replace('#sync=', '');
-        const jsonStr = decodeURIComponent(Array.prototype.map.call(atob(b64), (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-        const parsed = JSON.parse(jsonStr);
-
-        if (parsed && parsed.goal) {
-          pendingSyncData = parsed;
-          $('#incoming-sync-desc').innerHTML = `
-            检测到来自其他设备的同步数据包：<br>
-            • 目标名称：<strong>${escapeHtml(parsed.goal.title)}</strong><br>
-            • 包含任务库：<strong>${parsed.tasks.length} 项</strong><br>
-            • 数据时间：<strong>${parsed.timestamp ? parsed.timestamp.replace('T', ' ').slice(0, 19) : '刚刚'}</strong><br><br>
-            是否立即将此数据同步覆盖到当前设备？
-          `;
-          openModal('modal-incoming-sync');
-        }
-      } catch(e) {
-        console.error('Failed to parse incoming sync data', e);
-      }
-    }
-  }
-
-  $('#btn-confirm-incoming-sync').onclick = () => {
-    if (pendingSyncData) {
-      importFullDataPackage(pendingSyncData);
-      closeModal('modal-incoming-sync');
-      // Clean URL hash
-      history.replaceState(null, null, ' ');
-      showToast('🎉 数据同步成功！已载入最新进度');
-    }
-  };
-
-  // WebDAV Configuration & Sync
-  $('#webdav-url').value = webdavConfig.url || 'https://dav.jianguoyun.com/dav/';
-  $('#webdav-path').value = webdavConfig.path || '/cet6_sync.json';
-  $('#webdav-user').value = webdavConfig.user || '';
-  $('#webdav-pass').value = webdavConfig.pass || '';
-
-  $('#btn-webdav-save-cfg').onclick = () => {
-    webdavConfig.url = $('#webdav-url').value.trim();
-    webdavConfig.path = $('#webdav-path').value.trim() || '/cet6_sync.json';
-    webdavConfig.user = $('#webdav-user').value.trim();
-    webdavConfig.pass = $('#webdav-pass').value.trim();
-    saveWebdavConfig(webdavConfig);
-    showToast('✅ 坚果云 / WebDAV 配置已保存');
-  };
-
-  $('#btn-webdav-upload').onclick = async () => {
-    const cfg = {
-      url: $('#webdav-url').value.trim(),
-      path: $('#webdav-path').value.trim() || '/cet6_sync.json',
-      user: $('#webdav-user').value.trim(),
-      pass: $('#webdav-pass').value.trim()
-    };
-    if (!cfg.user || !cfg.pass) {
-      showToast('⚠️ 请先填写坚果云账号与应用密码');
+  $('#btn-save-sync-key').onclick = () => {
+    const inputVal = $('#sync-input-key').value.trim();
+    if (!inputVal) {
+      showToast('⚠️ 同步码不能为空');
       return;
     }
-    saveWebdavConfig(cfg);
-
-    const fullUrl = cfg.url.replace(/\/$/, '') + (cfg.path.startsWith('/') ? cfg.path : '/' + cfg.path);
-    const authHeader = 'Basic ' + btoa(cfg.user + ':' + cfg.pass);
-    const bodyStr = JSON.stringify(exportFullDataPackage(), null, 2);
-
-    try {
-      showToast('正在上传数据到坚果云...');
-      const res = await fetch(fullUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': authHeader,
-          'Content-Type': 'application/json'
-        },
-        body: bodyStr
-      });
-      if (res.ok || res.status === 201 || res.status === 204) {
-        showToast('🎉 上传成功！手机端点击【从云端拉取】即可同步');
-      } else {
-        showToast(`上传失败 (HTTP ${res.status})，请检查账号密码`);
-      }
-    } catch(err) {
-      showToast('⚠️ 坚果云请求受限（跨域CORS），请优先使用方式一手机扫码即时同步');
-    }
+    syncKey = inputVal;
+    localStorage.setItem(KEYS.SYNC_KEY, syncKey);
+    updateSyncBadge();
+    closeModal('modal-sync');
+    initRealtime();
+    pullFromCloud();
   };
 
-  $('#btn-webdav-download').onclick = async () => {
-    const cfg = {
-      url: $('#webdav-url').value.trim(),
-      path: $('#webdav-path').value.trim() || '/cet6_sync.json',
-      user: $('#webdav-user').value.trim(),
-      pass: $('#webdav-pass').value.trim()
-    };
-    if (!cfg.user || !cfg.pass) {
-      showToast('⚠️ 请先填写坚果云账号与应用密码');
-      return;
-    }
-
-    const fullUrl = cfg.url.replace(/\/$/, '') + (cfg.path.startsWith('/') ? cfg.path : '/' + cfg.path);
-    const authHeader = 'Basic ' + btoa(cfg.user + ':' + cfg.pass);
-
-    try {
-      showToast('正在从坚果云拉取数据...');
-      const res = await fetch(fullUrl, {
-        method: 'GET',
-        headers: { 'Authorization': authHeader }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (importFullDataPackage(data)) {
-          showToast('🎉 已成功从云端拉取并同步最新进度！');
-        }
-      } else {
-        showToast(`拉取失败 (HTTP ${res.status})，云端文件可能尚未创建`);
-      }
-    } catch(err) {
-      showToast('⚠️ 坚果云请求受限（跨域CORS），请使用方式一手机扫码秒级同步');
-    }
+  $('#btn-force-pull').onclick = () => {
+    pullFromCloud();
   };
 
-  // JSON File Export/Import
-  $('#btn-export-file').onclick = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportFullDataPackage(), null, 2));
-    const a = document.createElement('a');
-    a.setAttribute('href', dataStr);
-    a.setAttribute('download', `cet6_backup_${todayKey()}.json`);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    showToast('✅ 备份文件已下载');
-  };
-
-  $('#inp-import-file').onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const parsed = JSON.parse(event.target.result);
-        if (importFullDataPackage(parsed)) {
-          showToast('🎉 成功从文件载入进度！');
-        }
-      } catch(err) {
-        showToast('⚠️ 文件解析失败，不是有效的备份 JSON');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
-
-  $('#btn-copy-raw-json').onclick = () => {
-    const raw = JSON.stringify(exportFullDataPackage());
-    navigator.clipboard.writeText(raw).then(() => {
-      showToast('📋 数据字符串已复制，可在手机端点击粘贴导入');
+  $('#btn-copy-share-url').onclick = () => {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const shareUrl = `${baseUrl}?key=${encodeURIComponent(syncKey)}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast('📋 已复制配对链接！手机发送至微信或浏览器打开即可直连同步');
     }).catch(() => {
-      prompt('请复制以下数据字符串：', raw);
+      prompt('请复制下方链接直接在手机打开：', shareUrl);
     });
   };
 
-  $('#btn-paste-raw-json').onclick = () => {
-    const input = prompt('请粘贴从电脑或其他设备复制的数据字符串：');
-    if (!input) return;
-    try {
-      const parsed = JSON.parse(input.trim());
-      if (importFullDataPackage(parsed)) {
-        showToast('🎉 成功导入数据字符串！');
-      }
-    } catch(e) {
-      showToast('⚠️ 格式错误，无法解析数据字符串');
-    }
-  };
-
   /* ==========================================================================
-     8. Navigation & Modal Controls
+     7. Navigation & Modal Controls
      ======================================================================== */
   $$('.nav-btn').forEach(btn => {
     btn.onclick = () => {
@@ -2589,13 +1979,7 @@
 
       const tab = btn.dataset.tab;
       $('#view-home').style.display = tab === 'home' ? 'block' : 'none';
-      $('#view-pomodoro').style.display = tab === 'pomodoro' ? 'block' : 'none';
       $('#view-tasks').style.display = tab === 'tasks' ? 'block' : 'none';
-      $('#view-sync').style.display = tab === 'sync' ? 'block' : 'none';
-
-      if (tab === 'sync') {
-        generateQrCode();
-      }
     };
   });
 
@@ -2622,19 +2006,17 @@
      Initialization
      ======================================================================== */
   $('#goal-name-text').textContent = goal.title;
-  $('#pomo-input-focus').value = pomoSettings.focus;
-  $('#pomo-input-rest').value = pomoSettings.rest;
+  updateSyncBadge();
 
   updateClockAndCountdown();
   setInterval(updateClockAndCountdown, 1000);
 
-  updateRestHint();
   renderSlots();
   renderRepo();
-  renderPomoDisplay();
 
-  // Check if incoming sync data exists in URL
-  checkIncomingSync();
+  // Connect to Supabase Cloud & Start Listening
+  initRealtime();
+  pullFromCloud(true);
 
 })();
 </script>
